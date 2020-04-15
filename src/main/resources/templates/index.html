@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Qualidade do ar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+    <script  type="text/javascript"  charset="utf-8">
+        (function(w,d,t,f){  w[f]=w[f]||function(c,k,n){s=w[f],k=s['k']=(s['k']||(k?('&k='+k):''));s['c']=
+            c=(c  instanceof  Array)?c:[c];s['n']=n=n||0;L=d.createElement(t),e=d.getElementsByTagName(t)[0];
+            L.async=1;L.src='//feed.aqicn.org/feed/'+(c[n].city)+'/'+(c[n].lang||'')+'/feed.v1.js?n='+n+k;
+            e.parentNode.insertBefore(L,e);  };  })(  window,document,'script','_aqiFeed'  );
+    </script>
+    <style>
+        body,h1{font-family: "Lato", sans-serif}
+
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Style the search field */
+        form.example input[type=text] {
+            padding: 10px;
+            font-size: 17px;
+            border: 1px solid grey;
+            float: left;
+            width: 80%;
+            background: #f1f1f1;
+        }
+
+        /* Style the submit button */
+        form.example button {
+            float: left;
+            width: 20%;
+            padding: 10px;
+            background: #2196F3;
+            color: white;
+            font-size: 17px;
+            border: 1px solid grey;
+            border-left: none; /* Prevent double borders */
+            cursor: pointer;
+        }
+
+        form.example button:hover {
+            background: #0b7dda;
+        }
+
+        /* Clear floats */
+        form.example::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+        th, td {
+            border-bottom: 1px solid #ddd;
+            min-width: 50px;
+            text-align: center;
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+        th.left, td.left {
+            border-bottom: 1px solid #ddd;
+            min-width: 100px;
+            text-align: left;
+        }
+        th.center, td.center {
+            border-bottom: 1px solid #ddd;
+            min-width: 100px;
+            text-align: center;
+        }
+        tr:nth-child(even) {background-color: #f2f2f2;}
+        th {
+            background-color: #4EB6D2;
+            color: white;
+        }
+        .center {
+            margin: auto;
+            width: 50%;
+            padding: 10px;
+        }
+        .container {
+            position: relative;
+            text-align: center;
+            color: white;
+        }
+        .centered {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #4EB6D2;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <img src="https://i.imgur.com/hwzvFbn.png" alt="Snow" style="width:100%;">
+        <div class="centered"><h1 align="center">HW1: Mid-term assignment </h1><h2 align="center">Qualidade do ar </h2></div>
+    </div>
+    <hr>
+    <div id="data" class="container">
+        <form class="example" style="margin:auto;max-width:500px">
+            <input type="text" placeholder="Pesquisar" name="location" id="location">
+            <button type="submit"><i class="fa fa-search"><a href="#data"></a></i></button>
+        </form>
+    </div>
+    <!--<p id="weather" th:text="${local}"/> -->
+    <h2 align="center" id="city" th:text="${local}"></h2>
+    <table id="table" align="center" style="visibility: hidden">
+        <tr>
+            <td>
+                <table align="center" style="width: 450px;">
+                    <tr>
+                        <th class="center">Poluente</th><th>Valor</th>
+                    </tr>
+                    <tr>
+                        <td class="left">Partículas inaláveis (PM10)</td><td><p id="pm10"></p></td>
+                    </tr>
+                    <tr>
+                        <td class="left">Monóxido de carbono (CO)</td><td><p id="co"></p></td>
+                    </tr>
+                    <tr>
+                        <td class="left">Dióxido de azoto (NO2)</td><td><p id="no2"></p></td>
+                    </tr>
+                    <tr>
+                        <td class="left">Ozono (O3)</td><td><p id="o3"></p></td>
+                    </tr>
+                    <tr>
+                        <td class="left">Dióxido de enxofre (SO2)</td><td><p id="so2"></p></td>
+                    </tr>
+                    <tr>
+                        <td class="left">Temperatura (ºC)</td><td><p id="t"></p></td>
+                    </tr>
+                </table>
+                </td>
+            <td>
+                <div  style="text-align: center; width: 450px">
+                    <div  id='map'  style='height:380px;'  />
+                    <link  rel="stylesheet"  href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css"  />
+                    <script  src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script>
+
+                    <script th:inline="javascript">
+                        var local = /*[[${local}]]*/ 'local';
+                        //var local = JSON.parse(message);
+                        var geo = local['data']['city']['geo'];
+                        var cityName = local['data']['city']['name'];
+                        document.getElementById("city").innerText = cityName;
+                        if(local['data']['iaqi']['no2']['v'] != undefined) {
+                            var no2 = local['data']['iaqi']['no2']['v'];
+                            document.getElementById("no2").innerText = no2;
+                        }
+                        else{
+                            document.getElementById("no2").innerText = 'Indefinido'
+                        }
+                        if(local['data']['iaqi']['pm10']['v'] != undefined) {
+                            var pm10 = local['data']['iaqi']['pm10']['v'];
+                            document.getElementById("pm10").innerText = pm10;
+                        }
+                        else{
+                            document.getElementById("pm10").innerText = 'Indefinido'
+                        }
+                        if(local['data']['iaqi']['o3']['v'] != undefined) {
+                            var o3 = local['data']['iaqi']['o3']['v'];
+                            document.getElementById("o3").innerText = o3;
+                        }
+                        else{
+                            document.getElementById("o3").innerText = 'Indefinido'
+                        }
+                        if(local['data']['iaqi']['so2']['v'] != undefined) {
+                            var so2 = local['data']['iaqi']['so2']['v'];
+                            document.getElementById("so2").innerText = so2;
+                        }
+                        else{
+                            document.getElementById("so2").innerText = 'Indefinido'
+                        }
+                        if(local['data']['iaqi']['co']['v'] != undefined) {
+                            var co = local['data']['iaqi']['co']['v'];
+                            document.getElementById("co").innerText = co;
+                        }
+                        else {
+                            document.getElementById("co").innerText = 'Indefinido'
+                        }
+                        if(local['data']['iaqi']['t']['v'] != undefined) {
+                            var t = local['data']['iaqi']['t']['v'];
+                            document.getElementById("t").innerText = t;
+                        }
+                        else {
+                            document.getElementById("t").innerText = 'Indefinido'
+                        }
+                        document.getElementById("table").style.visibility="visible";
+
+
+
+                        var  OSM_URL  =  'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+                        var  OSM_ATTRIB  =  '&copy;  <a  href="http://openstreetmap.org/copyright">OpenStreetMap</a>  contributors';
+                        var  osmLayer  =  L.tileLayer(OSM_URL,  {attribution:  OSM_ATTRIB});
+
+                        var  WAQI_URL    =  "https://tiles.waqi.info/tiles/usepa-aqi/{z}/{x}/{y}.png?token=8fe6c48599b128a1f153d247218ae5a54ab0f4c7";
+                        var  WAQI_ATTR  =  'Air  Quality  Tiles  &copy;  <a  href="http://waqi.info">waqi.info</a>';
+                        var  waqiLayer  =  L.tileLayer(WAQI_URL,  {attribution:  WAQI_ATTR});
+
+                        var  map  =  L.map('map').setView(geo,  11);
+                        map.addLayer(osmLayer).addLayer(waqiLayer);
+                    </script>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+
+
+</body>
+</html>
