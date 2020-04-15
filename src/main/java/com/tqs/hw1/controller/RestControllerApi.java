@@ -20,7 +20,11 @@ public class RestControllerApi {
 
     @GetMapping("/cache")
     public List<Weather> getCache(Model model) {
-        model.addAttribute("list", cache.getCache());
         return cache.getCache();
+    }
+
+    @GetMapping("/last")
+    public Weather getLastWeather(Model model) {
+        return cache.getCache().get(cache.getCache().size() - 1);
     }
 }

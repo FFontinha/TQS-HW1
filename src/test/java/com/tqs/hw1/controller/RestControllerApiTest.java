@@ -48,6 +48,21 @@ public class RestControllerApiTest {
     }
 
     @Test
+    public void getLast_thenReturnJsonArray() throws Exception {
+        Weather w = new Weather();
+        w.setSearchKey("London");
+        w.setStatus("ok");
+        List<Weather> weathers = Arrays.asList(w);
+        given(cache.getCache()).willReturn(weathers);
+
+        mvc.perform(get("/api/last")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.searchKey", is(w.getSearchKey())));
+
+    }
+
+    @Test
     @DisplayName("Weather exists")
     void locationExists(){
         String location = "Lisboa";
